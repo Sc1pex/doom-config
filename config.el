@@ -97,12 +97,7 @@
   :mode "\\.svelte\\'"
   :config
   (after! lsp-mode
-    (add-to-list 'lsp-language-id-configuration '(svelte-ts-mode . "svelte"))
-    ;; Ensure lsp-mode knows to watch svelte-ts-mode
-    (lsp-register-client
-     (make-lsp-client :new-connection (lsp-stdio-connection '("svelteserver" "--stdio"))
-                      :major-modes '(svelte-ts-mode)
-                      :server-id 'svelte-ls)))
+    (add-to-list 'lsp-language-id-configuration '(svelte-ts-mode . "svelte")))
 
   (add-hook 'svelte-ts-mode-hook #'lsp-deferred))
 
