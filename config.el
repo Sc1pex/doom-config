@@ -1,3 +1,6 @@
+(assoc-delete-all "\\.svelte\\'" auto-mode-alist)
+(add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-ts-mode))
+
 (setq doom-theme 'doom-dark+)
 
 (setq doom-font (font-spec :family "GeistMono NerdFont Mono" :size 16 :weight 'semi-bold))
@@ -90,6 +93,19 @@
 
 (use-package! lsp-tailwindcss :after lsp-mode)
 
+(use-package! svelte-ts-mode
+  :mode "\\.svelte\\'"
+  :config
+  (after! lsp-mode
+    (add-to-list 'lsp-language-id-configuration '(svelte-ts-mode . "svelte"))
+    ;; Ensure lsp-mode knows to watch svelte-ts-mode
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection '("svelteserver" "--stdio"))
+                      :major-modes '(svelte-ts-mode)
+                      :server-id 'svelte-ls)))
+
+  (add-hook 'svelte-ts-mode-hook #'lsp-deferred))
+
 (add-to-list 'copilot-indentation-alist '(prog-mode 4))
 
 (map! :leader
@@ -102,3 +118,23 @@
   (setq corfu-auto t
         corfu-auto-prefix 0
         corfu-auto-delay 0.2))
+
+(after! rustic
+  (setq rustic-rustfmt-args '("--edition", "2024")))
+
+(after! lsp-mode
+  (setq lsp-auto-execute-action nil))
+
+(after! treesit
+  (setq treesit-language-source-alist
+        (append treesit-language-source-alist
+                '((svelte . ("https://github.com/tree-sitter-grammars/tree-sitter-svelte"))
+                  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" nil
+                                 "typescript/src"))
+                  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+                  (css . ("https://github.com/tree-sitter/tree-sitter-css"))))))
+
+(after! apheleia
+  (add-to-list 'apheleia-mode-alist '(svelte-ts-mode . prettier-svelte)))
+
+(setq! c-ts-mode-indent-offset 4)
